@@ -11,7 +11,12 @@ interface TravelFormData {
 
 export async function generateTravelPlan(formData: TravelFormData) {
   try {
-    const API_KEY = "YOUR_API_KEY"; // You'll need to replace this with your actual API key
+    const API_KEY = localStorage.getItem('gemini_api_key');
+    
+    if (!API_KEY) {
+      throw new Error("Please add your Gemini API key in the settings.");
+    }
+    
     const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
     
     const prompt = `
@@ -58,7 +63,8 @@ export async function generateTravelPlan(formData: TravelFormData) {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(`API Error (${response.status}): ${errorData?.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
@@ -67,4 +73,18 @@ export async function generateTravelPlan(formData: TravelFormData) {
     console.error('Error generating travel plan:', error);
     throw error;
   }
+}
+
+export function setGeminiApiKey(key: string) {
+  localStorage.setItem('gemini_api_key', key);
+  return true;
+}
+
+export function getGeminiApiKey() {
+  return localStorage.getItem('gemini_api_key') || '';
+}
+
+export function hasGeminiApiKey() {
+  const key = localStorage.getItem('gemini_api_key');
+  return !!key && key.trim() !== '';
 }

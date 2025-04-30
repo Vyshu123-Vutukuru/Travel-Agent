@@ -1,17 +1,36 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TravelHeader } from "@/components/TravelHeader";
 import { TravelFooter } from "@/components/TravelFooter";
 import { TravelPlanForm } from "@/components/TravelPlanForm";
 import { TravelPlanDisplay } from "@/components/TravelPlanDisplay";
-import { generateTravelPlan } from "@/services/geminiService";
+import { generateTravelPlan, hasGeminiApiKey } from "@/services/geminiService";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [travelPlan, setTravelPlan] = useState<string | null>(null);
   const [travelInfo, setTravelInfo] = useState<any>(null);
+  const [hasApiKey, setHasApiKey] = useState(false);
   const { toast } = useToast();
+  
+  useEffect(() => {
+    // Check if API key exists on component mount and when localStorage changes
+    const checkApiKey = () => {
+      setHasApiKey(hasGeminiApiKey());
+    };
+    
+    checkApiKey();
+    
+    // Listen for storage changes (in case API key is added in another tab)
+    window.addEventListener('storage', checkApiKey);
+    
+    return () => {
+      window.removeEventListener('storage', checkApiKey);
+    };
+  }, []);
 
   const handleSubmit = async (formData: {
     source: string;
@@ -22,6 +41,15 @@ const Index = () => {
     travelers: string;
     interests: string[];
   }) => {
+    if (!hasApiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please add your Gemini API key before generating a travel plan",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (formData.interests.length === 0) {
       toast({
         title: "Please select at least one interest",
@@ -44,11 +72,11 @@ const Index = () => {
           resultsElement.scrollIntoView({ behavior: "smooth" });
         }
       }, 100);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating travel plan:", error);
       toast({
         title: "Error generating travel plan",
-        description: "Please try again later or check your API key.",
+        description: error.message || "Please try again later or check your API key.",
         variant: "destructive",
       });
     } finally {
@@ -68,6 +96,15 @@ const Index = () => {
               Your AI-powered travel planning assistant
             </p>
           </div>
+          
+          {!hasApiKey && (
+            <Alert className="mb-6 bg-amber-50 border-amber-200">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <AlertDescription>
+                Please add your Gemini API key by clicking the "API Key" button in the header before generating a travel plan.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="mb-16">
             <TravelPlanForm onSubmit={handleSubmit} isLoading={isLoading} />

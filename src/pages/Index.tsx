@@ -79,7 +79,8 @@ const Index = () => {
           toast({
             title: "Flight information unavailable",
             description: "Could not retrieve flight details, but continuing with travel plan generation.",
-            variant: "warning",
+            // Fix for the type error
+            variant: "destructive",
           });
         }
       }

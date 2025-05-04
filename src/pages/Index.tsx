@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { TravelHeader } from "@/components/TravelHeader";
 import { TravelFooter } from "@/components/TravelFooter";
@@ -79,7 +78,6 @@ const Index = () => {
           toast({
             title: "Flight information unavailable",
             description: "Could not retrieve flight details, but continuing with travel plan generation.",
-            // Fix for the type error
             variant: "destructive",
           });
         }

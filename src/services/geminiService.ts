@@ -75,6 +75,63 @@ export async function generateTravelPlan(formData: TravelFormData) {
   }
 }
 
+export async function generateChatResponse(travelPlan: string, userQuestion: string) {
+  try {
+    const API_KEY = localStorage.getItem('gemini_api_key');
+    
+    if (!API_KEY) {
+      throw new Error("Please add your Gemini API key in the settings.");
+    }
+    
+    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    
+    const prompt = `
+      You are a helpful travel assistant that is helping the user with their travel plan.
+      
+      Here is the travel plan:
+      ${travelPlan}
+      
+      User's question: ${userQuestion}
+      
+      Provide a helpful, conversational response that focuses on answering their question with specific information from the travel plan.
+      Keep your answer concise but informative, directly addressing what they asked about.
+    `;
+
+    const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API Error (${response.status}): ${errorData?.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error generating chat response:', error);
+    throw error;
+  }
+}
+
 export function setGeminiApiKey(key: string) {
   localStorage.setItem('gemini_api_key', key);
   return true;

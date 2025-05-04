@@ -5,6 +5,7 @@ import { TravelFooter } from "@/components/TravelFooter";
 import { TravelPlanForm } from "@/components/TravelPlanForm";
 import { TravelPlanDisplay } from "@/components/TravelPlanDisplay";
 import { generateTravelPlan, hasGeminiApiKey } from "@/services/geminiService";
+import { getFlightData, FlightOption } from "@/services/serpApiService";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -13,6 +14,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [travelPlan, setTravelPlan] = useState<string | null>(null);
   const [travelInfo, setTravelInfo] = useState<any>(null);
+  const [flightInfo, setFlightInfo] = useState<FlightOption | undefined>(undefined);
   const [hasApiKey, setHasApiKey] = useState(false);
   const { toast } = useToast();
   
@@ -40,6 +42,7 @@ const Index = () => {
     budget: string;
     travelers: string;
     interests: string[];
+    includeTransportation: boolean;
   }) => {
     if (!hasApiKey) {
       toast({
@@ -60,8 +63,28 @@ const Index = () => {
 
     setIsLoading(true);
     setTravelInfo(formData);
+    setFlightInfo(undefined);
 
     try {
+      // Fetch flight information if requested
+      if (formData.includeTransportation) {
+        try {
+          const flightData = await getFlightData(formData.source, formData.destination);
+          if (flightData && flightData.best_flights && flightData.best_flights.length > 0) {
+            setFlightInfo(flightData.best_flights[0]);
+          }
+        } catch (flightError) {
+          console.error("Error fetching flight data:", flightError);
+          // We don't want to fail the whole operation if just the flight data fails
+          toast({
+            title: "Flight information unavailable",
+            description: "Could not retrieve flight details, but continuing with travel plan generation.",
+            variant: "warning",
+          });
+        }
+      }
+      
+      // Generate travel plan
       const plan = await generateTravelPlan(formData);
       setTravelPlan(plan);
       
@@ -125,6 +148,7 @@ const Index = () => {
               <TravelPlanDisplay 
                 planContent={travelPlan} 
                 travelInfo={travelInfo}
+                flightInfo={flightInfo}
               />
             </div>
           )}

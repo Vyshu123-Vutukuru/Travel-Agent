@@ -3,6 +3,8 @@ import React from "react";
 import { Calendar, MapPin, Ticket, Route } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
+import { FlightInfoCard } from "@/components/FlightInfoCard";
+import { FlightOption } from "@/services/serpApiService";
 
 interface TravelPlanDisplayProps {
   planContent: string;
@@ -14,11 +16,13 @@ interface TravelPlanDisplayProps {
     budget: string;
     travelers: string;
   };
+  flightInfo?: FlightOption;
 }
 
 export function TravelPlanDisplay({
   planContent,
-  travelInfo
+  travelInfo,
+  flightInfo
 }: TravelPlanDisplayProps) {
   return (
     <div className="space-y-6 animate-fade-in">
@@ -76,6 +80,8 @@ export function TravelPlanDisplay({
             </CardContent>
           </Card>
         </div>
+        
+        {flightInfo && <FlightInfoCard flightInfo={flightInfo} />}
         
         <div className="prose max-w-none">
           <ReactMarkdown>{planContent}</ReactMarkdown>

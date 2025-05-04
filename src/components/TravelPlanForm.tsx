@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +22,7 @@ interface TravelPlanFormProps {
     budget: string;
     travelers: string;
     interests: string[];
+    includeTransportation: boolean;
   }) => void;
   isLoading: boolean;
 }
@@ -46,6 +46,7 @@ export function TravelPlanForm({ onSubmit, isLoading }: TravelPlanFormProps) {
   const [budget, setBudget] = useState("");
   const [travelers, setTravelers] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [includeTransportation, setIncludeTransportation] = useState(false);
 
   const handleInterestChange = (id: string, checked: boolean) => {
     setInterests(
@@ -66,6 +67,7 @@ export function TravelPlanForm({ onSubmit, isLoading }: TravelPlanFormProps) {
       budget,
       travelers,
       interests,
+      includeTransportation,
     });
   };
 
@@ -203,6 +205,21 @@ export function TravelPlanForm({ onSubmit, isLoading }: TravelPlanFormProps) {
             </div>
           ))}
         </div>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="includeTransportation"
+          checked={includeTransportation}
+          onCheckedChange={(checked) => setIncludeTransportation(checked === true)}
+        />
+        <Label
+          htmlFor="includeTransportation"
+          className="text-sm font-medium cursor-pointer flex items-center"
+        >
+          <Plane className="h-4 w-4 mr-2 text-travel-blue" />
+          Include flight information
+        </Label>
       </div>
       
       <Button

@@ -1,5 +1,6 @@
 
-// Mock response for SerpAPI flights data
+// SerpAPI service for flight data
+
 interface Airport {
   name: string;
   id: string;
@@ -53,9 +54,37 @@ export interface SerpApiFlightsResponse {
   best_flights: FlightOption[];
 }
 
+// Function to set SerpAPI key in localStorage
+export function setSerpApiKey(key: string) {
+  localStorage.setItem('serp_api_key', key);
+  return true;
+}
+
+// Function to get SerpAPI key from localStorage
+export function getSerpApiKey() {
+  return localStorage.getItem('serp_api_key') || '';
+}
+
+// Function to check if SerpAPI key exists
+export function hasSerpApiKey() {
+  const key = localStorage.getItem('serp_api_key');
+  return !!key && key.trim() !== '';
+}
+
 export async function getFlightData(source: string, destination: string): Promise<SerpApiFlightsResponse> {
-  // This is a mock implementation that returns sample data
-  // We'll replace this with a real API call later
+  // For demo purposes, we'll still use the mock data
+  // In a real application, you would make an actual API call with the SerpAPI key
+  
+  // const apiKey = getSerpApiKey();
+  // if (!apiKey) {
+  //   throw new Error("Please add your SerpAPI key in the settings.");
+  // }
+  
+  // Real implementation would be:
+  // const url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${source}&arrival_id=${destination}&api_key=${apiKey}`;
+  // const response = await fetch(url);
+  // const data = await response.json();
+  // return data;
   
   return {
     "best_flights": [

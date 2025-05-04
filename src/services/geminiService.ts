@@ -64,7 +64,14 @@ export async function generateTravelPlan(formData: TravelFormData) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`API Error (${response.status}): ${errorData?.error?.message || 'Unknown error'}`);
+      const errorMessage = errorData?.error?.message || 'Unknown error';
+      const errorStatus = response.status;
+      
+      if (errorStatus === 400 || errorStatus === 401 || errorStatus === 403) {
+        throw new Error(`API Key Error: ${errorMessage}. Please check your Gemini API key.`);
+      } else {
+        throw new Error(`API Error (${errorStatus}): ${errorMessage}`);
+      }
     }
 
     const data = await response.json();
@@ -133,8 +140,19 @@ export async function generateChatResponse(travelPlan: string, userQuestion: str
 }
 
 export function setGeminiApiKey(key: string) {
-  localStorage.setItem('gemini_api_key', key);
-  return true;
+  try {
+    // Test if the key is valid before saving
+    const trimmedKey = key.trim();
+    if (!trimmedKey) {
+      throw new Error("API key cannot be empty");
+    }
+    
+    localStorage.setItem('gemini_api_key', trimmedKey);
+    return true;
+  } catch (error) {
+    console.error('Error setting API key:', error);
+    return false;
+  }
 }
 
 export function getGeminiApiKey() {

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Key } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,27 +13,27 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { setGeminiApiKey, getGeminiApiKey } from "@/services/geminiService";
+import { setSerpApiKey, getSerpApiKey } from "@/services/serpApiService";
 
-export function ApiKeyDialog() {
+export function SerpApiKeyDialog() {
   const [open, setOpen] = useState(false);
-  const [apiKey, setApiKey] = useState(getGeminiApiKey());
+  const [apiKey, setApiKey] = useState(getSerpApiKey());
   const { toast } = useToast();
   
   const handleSave = () => {
     if (!apiKey.trim()) {
       toast({
         title: "API Key Required",
-        description: "Please enter your Gemini API key",
+        description: "Please enter your SerpAPI key",
         variant: "destructive",
       });
       return;
     }
     
-    setGeminiApiKey(apiKey);
+    setSerpApiKey(apiKey);
     toast({
       title: "API Key Saved",
-      description: "Your Gemini API key has been saved successfully",
+      description: "Your SerpAPI key has been saved successfully",
     });
     setOpen(false);
   };
@@ -41,35 +41,35 @@ export function ApiKeyDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2" aria-label="Add Gemini API Key">
-          <Key className="h-4 w-4" />
-          <span>API Key</span>
+        <Button variant="outline" size="sm" className="gap-2 ml-2">
+          <Search className="h-4 w-4" />
+          <span>SerpAPI</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Set Gemini API Key</DialogTitle>
+          <DialogTitle>Set SerpAPI Key</DialogTitle>
           <DialogDescription>
-            Enter your Gemini API key to use the travel planning features. 
+            Enter your SerpAPI key to enable flight data retrieval features. 
             You can get an API key from the 
             <a 
-              href="https://ai.google.dev/" 
+              href="https://serpapi.com/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-blue-500 hover:text-blue-700 mx-1"
             >
-              Google AI Studio
+              SerpAPI website
             </a>.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="apiKey">API Key</Label>
+            <Label htmlFor="serpApiKey">API Key</Label>
             <Input
-              id="apiKey"
+              id="serpApiKey"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your Gemini API key"
+              placeholder="Enter your SerpAPI key"
               type="password"
             />
           </div>

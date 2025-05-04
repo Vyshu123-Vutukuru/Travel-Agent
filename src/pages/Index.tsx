@@ -1,35 +1,39 @@
+
 import React, { useState, useEffect } from "react";
 import { TravelHeader } from "@/components/TravelHeader";
 import { TravelFooter } from "@/components/TravelFooter";
 import { TravelPlanForm } from "@/components/TravelPlanForm";
 import { TravelPlanDisplay } from "@/components/TravelPlanDisplay";
 import { generateTravelPlan, hasGeminiApiKey } from "@/services/geminiService";
-import { getFlightData, FlightOption } from "@/services/serpApiService";
+import { getFlightData, FlightOption, hasSerpApiKey } from "@/services/serpApiService";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Key, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [travelPlan, setTravelPlan] = useState<string | null>(null);
   const [travelInfo, setTravelInfo] = useState<any>(null);
   const [flightInfo, setFlightInfo] = useState<FlightOption | undefined>(undefined);
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [hasGeminiKey, setHasGeminiKey] = useState(false);
+  const [hasSerpKey, setHasSerpKey] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
-    // Check if API key exists on component mount and when localStorage changes
-    const checkApiKey = () => {
-      setHasApiKey(hasGeminiApiKey());
+    // Check if API keys exist on component mount and when localStorage changes
+    const checkApiKeys = () => {
+      setHasGeminiKey(hasGeminiApiKey());
+      setHasSerpKey(hasSerpApiKey());
     };
     
-    checkApiKey();
+    checkApiKeys();
     
     // Listen for storage changes (in case API key is added in another tab)
-    window.addEventListener('storage', checkApiKey);
+    window.addEventListener('storage', checkApiKeys);
     
     return () => {
-      window.removeEventListener('storage', checkApiKey);
+      window.removeEventListener('storage', checkApiKeys);
     };
   }, []);
 
@@ -43,13 +47,21 @@ const Index = () => {
     interests: string[];
     includeTransportation: boolean;
   }) => {
-    if (!hasApiKey) {
+    if (!hasGeminiKey) {
       toast({
-        title: "API Key Required",
+        title: "Gemini API Key Required",
         description: "Please add your Gemini API key before generating a travel plan",
         variant: "destructive",
       });
       return;
+    }
+    
+    if (formData.includeTransportation && !hasSerpKey) {
+      toast({
+        title: "SerpAPI Key Recommended",
+        description: "For best flight information, consider adding your SerpAPI key",
+        variant: "default",
+      });
     }
     
     if (formData.interests.length === 0) {
@@ -119,11 +131,20 @@ const Index = () => {
             </p>
           </div>
           
-          {!hasApiKey && (
+          {!hasGeminiKey && (
             <Alert className="mb-6 bg-amber-50 border-amber-200">
               <AlertCircle className="h-4 w-4 text-amber-500" />
-              <AlertDescription>
-                Please add your Gemini API key by clicking the "API Key" button in the header before generating a travel plan.
+              <AlertDescription className="flex items-center justify-between">
+                <span>Please add your Gemini API key before generating a travel plan.</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="ml-4 border-amber-200 text-amber-700 hover:bg-amber-100"
+                  onClick={() => document.querySelector<HTMLButtonElement>('[aria-label="Add Gemini API Key"]')?.click()}
+                >
+                  <Key className="h-4 w-4 mr-2" />
+                  Add API Key
+                </Button>
               </AlertDescription>
             </Alert>
           )}

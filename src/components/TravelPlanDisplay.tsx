@@ -1,12 +1,10 @@
 
-import React, { useState } from "react";
-import { Calendar, MapPin, Ticket, Route, MessageSquare } from "lucide-react";
+import React from "react";
+import { Calendar, MapPin, Ticket, Route } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import { FlightInfoCard } from "@/components/FlightInfoCard";
 import { FlightOption } from "@/services/serpApiService";
-import { TravelChat } from "@/components/TravelChat";
-import { Button } from "@/components/ui/button";
 
 interface TravelPlanDisplayProps {
   planContent: string;
@@ -26,8 +24,6 @@ export function TravelPlanDisplay({
   travelInfo,
   flightInfo
 }: TravelPlanDisplayProps) {
-  const [showChat, setShowChat] = useState(false);
-  
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -90,24 +86,6 @@ export function TravelPlanDisplay({
         <div className="prose max-w-none">
           <ReactMarkdown>{planContent}</ReactMarkdown>
         </div>
-        
-        <div className="mt-8 flex justify-center">
-          <Button 
-            onClick={() => setShowChat(!showChat)}
-            className="flex items-center gap-2"
-            variant={showChat ? "outline" : "default"}
-          >
-            <MessageSquare className="h-4 w-4" />
-            {showChat ? "Hide Chat Assistant" : "Ask Travel Assistant"}
-          </Button>
-        </div>
-        
-        {showChat && (
-          <TravelChat 
-            travelPlan={planContent} 
-            destination={travelInfo.destination} 
-          />
-        )}
       </div>
     </div>
   );

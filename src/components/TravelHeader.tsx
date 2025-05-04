@@ -1,7 +1,8 @@
 
-import { Plane, Key, Search } from "lucide-react";
+import { Plane, Key, Bot } from "lucide-react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { SerpApiKeyDialog } from "@/components/SerpApiKeyDialog";
+import { ChatDrawerButton } from "@/components/ChatDrawerButton";
 
 export function TravelHeader() {
   return (
@@ -14,6 +15,7 @@ export function TravelHeader() {
         <div className="flex items-center space-x-4">
           <ApiKeyDialog />
           <SerpApiKeyDialog />
+          <ChatDrawerButton />
           <nav>
             <ul className="flex space-x-6">
               <li><a href="/" className="hover:text-travel-sand transition-colors">Home</a></li>
